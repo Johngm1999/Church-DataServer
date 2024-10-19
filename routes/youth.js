@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
+const authenticateToken = require("../middlewares/checkAuth");
 
 router.get("/", async (req, res) => {
     try {
@@ -102,7 +103,7 @@ router.get("/", async (req, res) => {
 });
 
 // Create a new parish registration
-router.post("/add", async (req, res) => {
+router.post("/add", authenticateToken, async (req, res) => {
     const {
         formNumber,
         fullName,
@@ -146,19 +147,20 @@ router.post("/add", async (req, res) => {
 
     // Check for empty fields and conditions for parishActivity and organisationGroup
     if (
+        formNumber === "" ||
         fullName === "" ||
         dateOfBirth === "" ||
         age === null ||
         gender === null ||
         permanentAddress === "" ||
-        currentAddress === "" ||
+        // currentAddress === "" ||
         mobileNumber === "" ||
         whatsappNumber === "" ||
-        email === "" ||
+        // email === "" ||
         educationalQualification === "" ||
         currentOccupation === "" ||
         professionalDetails === "" ||
-        currentCourse === "" ||
+        // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
         countryCity === "" ||
@@ -169,8 +171,9 @@ router.post("/add", async (req, res) => {
         parentsName === "" ||
         parentsNumber === "" ||
         unit === "" ||
-        specials === "" ||
-        healthIssues === ""
+        (baptism === false && confirmation === false && holyCommunion === false)
+        // specials === "" ||
+        // healthIssues === ""
     ) {
         isComplete = 0; // Set to incomplete if any condition is met
     }
@@ -184,8 +187,8 @@ router.post("/add", async (req, res) => {
                 baptism, confirmation, holy_communion, pending_sacraments, has_organisation_group, organisation_group,
                 has_parish_activity, parish_activity, is_outside_parish, is_student, country_city, parish_contact,
                 residential_address, is_attending_sunday_mass, sunday_mass_location, house_name,
-                parents_name, parents_number, unit, specials, health_issues ,is_complete
-            ) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
+                parents_name, parents_number, unit, specials, health_issues ,is_complete,data_added_by
+            ) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)
         `;
         const result = await conn.query(query, [
             formNumber,
@@ -224,6 +227,7 @@ router.post("/add", async (req, res) => {
             specials,
             healthIssues,
             isComplete,
+            req.user.user_role,
         ]);
 
         // Return the generated prefixed ID
@@ -456,7 +460,7 @@ router.get("/inomplete", async (req, res) => {
         ]);
 
         // Query to get total number of records
-        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data`;
+        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete=0`;
         const [countResult] = await conn.query(countQuery);
 
         // Release the connection
@@ -636,8 +640,10 @@ router.get("/search", async (req, res) => {
             countQuery += ` AND unit = ?`;
         }
         if (education) {
-            countQuery += ` AND educational_qualification = ? AND is_complete=1`;
+            countQuery += ` AND educational_qualification = ? `;
         }
+
+        countQuery += ` AND is_complete=1`;
 
         const countParams = [];
         if (name) countParams.push(`%${name}%`);
