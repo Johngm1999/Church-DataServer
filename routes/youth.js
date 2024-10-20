@@ -151,7 +151,9 @@ router.post("/add", authenticateToken, async (req, res) => {
         fullName === "" ||
         dateOfBirth === "" ||
         age === null ||
+        age === "" ||
         gender === null ||
+        gender === "" ||
         permanentAddress === "" ||
         // currentAddress === "" ||
         mobileNumber === "" ||
@@ -171,7 +173,7 @@ router.post("/add", authenticateToken, async (req, res) => {
         parentsName === "" ||
         parentsNumber === "" ||
         unit === "" ||
-        (baptism === false && confirmation === false && holyCommunion === false)
+        (!baptism && !confirmation && !holyCommunion)
         // specials === "" ||
         // healthIssues === ""
     ) {
@@ -295,19 +297,22 @@ router.post("/update", async (req, res) => {
 
     // Check for empty fields and conditions for parishActivity and organisationGroup
     if (
+        formNumber === "" ||
         fullName === "" ||
         dateOfBirth === "" ||
         age === null ||
+        age === "" ||
         gender === null ||
+        gender === "" ||
         permanentAddress === "" ||
-        currentAddress === "" ||
+        // currentAddress === "" ||
         mobileNumber === "" ||
         whatsappNumber === "" ||
-        email === "" ||
+        // email === "" ||
         educationalQualification === "" ||
         currentOccupation === "" ||
         professionalDetails === "" ||
-        currentCourse === "" ||
+        // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
         countryCity === "" ||
@@ -318,8 +323,9 @@ router.post("/update", async (req, res) => {
         parentsName === "" ||
         parentsNumber === "" ||
         unit === "" ||
-        specials === "" ||
-        healthIssues === ""
+        (!baptism && !confirmation && !holyCommunion)
+        // specials === "" ||
+        // healthIssues === ""
     ) {
         isComplete = 0; // Set to incomplete if any condition is met
     }
