@@ -249,6 +249,11 @@ router.post("/add", authenticateToken, async (req, res) => {
             isError: true,
             message: "Internal server error",
             error: error.message,
+            errorMesaage:
+                error.errno == 1062
+                    ? "Form number is already added"
+                    : "Something wnt wrong",
+            error: error.message,
         });
     }
 });
@@ -405,6 +410,10 @@ router.post("/update", async (req, res) => {
             statusCode: 500,
             isError: true,
             message: "Internal server error",
+            errorMesaage:
+                error.errno == 1062
+                    ? "Form number is already added"
+                    : "Something wnt wrong",
             error: error.message,
         });
     }
