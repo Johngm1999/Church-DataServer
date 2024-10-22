@@ -17,8 +17,8 @@ router.get("/", async (req, res) => {
         // Query to get paginated data
         const query = `
             SELECT * FROM parish_youth_data
-            WHERE is_complete = 1
-            LIMIT ? OFFSET ?
+            WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')
+            ORDER BY created_at DESC LIMIT ? OFFSET ? 
         `;
 
         const [rows] = await conn.query(query, [
@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
         ]);
 
         // Query to get total number of records
-        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete = 1`;
+        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')`;
         const [countResult] = await conn.query(countQuery);
 
         // Release the connection
@@ -77,6 +77,7 @@ router.get("/", async (req, res) => {
             unit: row.unit,
             specials: row.specials,
             healthIssues: row.health_issues,
+            additionalInfo: row.additional_info,
         }));
 
         // Return paginated data along with total pages and current page info
@@ -138,6 +139,7 @@ router.post("/add", authenticateToken, async (req, res) => {
         unit,
         specials,
         healthIssues,
+        additionalInfo,
     } = req.body;
 
     // Destructure sacraments for easier access
@@ -165,10 +167,10 @@ router.post("/add", authenticateToken, async (req, res) => {
         // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
-        countryCity === "" ||
-        parishContact === "" ||
-        residentialAddress === "" ||
-        (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
+        // countryCity === "" ||
+        // parishContact === "" ||
+        // residentialAddress === "" ||
+        // (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
         houseName === "" ||
         parentsName === "" ||
         parentsNumber === "" ||
@@ -189,8 +191,8 @@ router.post("/add", authenticateToken, async (req, res) => {
                 baptism, confirmation, holy_communion, pending_sacraments, has_organisation_group, organisation_group,
                 has_parish_activity, parish_activity, is_outside_parish, is_student, country_city, parish_contact,
                 residential_address, is_attending_sunday_mass, sunday_mass_location, house_name,
-                parents_name, parents_number, unit, specials, health_issues ,is_complete,data_added_by
-            ) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?)
+                parents_name, parents_number, unit, specials, health_issues ,is_complete,additional_info,data_added_by
+            ) VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?,?,?,?)
         `;
         const result = await conn.query(query, [
             formNumber,
@@ -229,6 +231,7 @@ router.post("/add", authenticateToken, async (req, res) => {
             specials,
             healthIssues,
             isComplete,
+            additionalInfo,
             req.user.user_role,
         ]);
 
@@ -294,6 +297,7 @@ router.post("/update", async (req, res) => {
         unit,
         specials,
         healthIssues,
+        additionalInfo,
     } = req.body;
 
     const { baptism, confirmation, holyCommunion } = sacraments;
@@ -320,10 +324,10 @@ router.post("/update", async (req, res) => {
         // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
-        countryCity === "" ||
-        parishContact === "" ||
-        residentialAddress === "" ||
-        (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
+        // countryCity === "" ||
+        // parishContact === "" ||
+        // residentialAddress === "" ||
+        // (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
         houseName === "" ||
         parentsName === "" ||
         parentsNumber === "" ||
@@ -347,7 +351,7 @@ router.post("/update", async (req, res) => {
                 parish_activity = ?, is_outside_parish = ?, is_student = ?, country_city = ?, 
                 parish_contact = ?, residential_address = ?, is_attending_sunday_mass = ?, 
                 sunday_mass_location = ?, house_name = ?, parents_name = ?, parents_number = ?, 
-                unit = ?, specials = ?, health_issues = ? ,is_complete = ?
+                unit = ?, specials = ?, health_issues = ? ,is_complete = ? , additional_info=?
             WHERE id = ?
         `;
         const result = await conn.query(query, [
@@ -387,6 +391,7 @@ router.post("/update", async (req, res) => {
             specials,
             healthIssues,
             isComplete,
+            additionalInfo,
             id,
         ]);
 
@@ -424,7 +429,7 @@ router.post("/delete", async (req, res) => {
 
     try {
         const conn = await db.connection();
-        const query = `DELETE FROM parish_youth_data WHERE id = ?`;
+        const query = `UPDATE parish_youth_data SET is_deleted = 1 WHERE id = ?`;
         const result = await conn.query(query, [id]);
 
         conn.release();
@@ -465,8 +470,8 @@ router.get("/inomplete", async (req, res) => {
 
         // Query to get paginated data
         const query = `SELECT * FROM parish_youth_data
-                        WHERE is_complete=0
-                        LIMIT ? OFFSET ?
+                        WHERE is_complete=0 AND (is_deleted = 0 or is_deleted ='0')
+                        ORDER BY created_at DESC LIMIT ? OFFSET ?
                         `;
 
         const [rows] = await conn.query(query, [
@@ -475,7 +480,7 @@ router.get("/inomplete", async (req, res) => {
         ]);
 
         // Query to get total number of records
-        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete=0`;
+        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete=0 AND (is_deleted = 0 or is_deleted ='0')`;
         const [countResult] = await conn.query(countQuery);
 
         // Release the connection
@@ -525,6 +530,7 @@ router.get("/inomplete", async (req, res) => {
             unit: row.unit,
             specials: row.specials,
             healthIssues: row.health_issues,
+            additionalInfo: row.additional_info,
         }));
 
         // Return paginated data along with total pages and current page info
@@ -558,7 +564,7 @@ router.get("/incomplete-count", async (req, res) => {
         // Query to count incomplete records
         const query = `
         SELECT COUNT(*) AS incompleteCount FROM parish_youth_data
-        WHERE is_complete=0
+        WHERE is_complete=0 AND (is_deleted = 0 or is_deleted ='0')
         `;
 
         // Execute the query
@@ -571,7 +577,7 @@ router.get("/incomplete-count", async (req, res) => {
         res.status(200).json({
             statusCode: 200,
             isError: false,
-            responseData: { incompleteCount: result[0].incompleteCount },
+            responseData: { incompleteCount: result[0].incompleteCount || 0 },
         });
     } catch (error) {
         console.error(error);
@@ -591,7 +597,8 @@ router.get("/search", async (req, res) => {
             page = 1,
             limit = 10,
             name,
-            dob,
+            dobFrom,
+            dobTo,
             mobileNumber,
             unit,
             education,
@@ -610,8 +617,8 @@ router.get("/search", async (req, res) => {
         if (name) {
             query += ` AND full_name LIKE ?`;
         }
-        if (dob) {
-            query += ` AND date_of_birth = ?`;
+        if (dobFrom && dobTo) {
+            query += ` AND date_of_birth BETWEEN ? AND ?`;
         }
         if (mobileNumber) {
             query += ` AND mobile_number = ?`;
@@ -624,12 +631,12 @@ router.get("/search", async (req, res) => {
         }
 
         // Append pagination to the query
-        query += ` AND is_complete = 1 LIMIT ? OFFSET ?`;
+        query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted ='0') LIMIT ? OFFSET ?`;
 
         // Prepare parameters for the query
         const params = [];
         if (name) params.push(`%${name}%`);
-        if (dob) params.push(dob);
+        if (dobFrom && dobTo) params.push(dobFrom, dobTo);
         if (mobileNumber) params.push(mobileNumber);
         if (unit) params.push(unit);
         if (education) params.push(education);
@@ -645,8 +652,8 @@ router.get("/search", async (req, res) => {
         if (name) {
             countQuery += ` AND full_name LIKE ?`;
         }
-        if (dob) {
-            countQuery += ` AND date_of_birth = ?`;
+        if (dobFrom && dobTo) {
+            countQuery += ` AND date_of_birth BETWEEN ? AND ?`;
         }
         if (mobileNumber) {
             countQuery += ` AND mobile_number = ?`;
@@ -658,11 +665,11 @@ router.get("/search", async (req, res) => {
             countQuery += ` AND educational_qualification = ? `;
         }
 
-        countQuery += ` AND is_complete=1`;
+        countQuery += ` AND is_complete=1 AND (is_deleted = 0 or is_deleted ='0')`;
 
         const countParams = [];
         if (name) countParams.push(`%${name}%`);
-        if (dob) countParams.push(dob);
+        if (dobFrom && dobTo) countParams.push(dobFrom, dobTo);
         if (mobileNumber) countParams.push(mobileNumber);
         if (unit) countParams.push(unit);
         if (education) countParams.push(education);
@@ -731,6 +738,171 @@ router.get("/search", async (req, res) => {
                 totalRecords: totalRecords,
                 limit: parseInt(limit),
             },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
+router.get("/deletedYouth", async (req, res) => {
+    try {
+        // Extract query parameters for pagination
+        const { page = 1, limit = 10 } = req.query;
+
+        // Calculate the offset
+        const offset = (page - 1) * limit;
+
+        // Connect to the database
+        const conn = await db.connection();
+
+        // Query to get paginated data
+        const query = `
+            SELECT * FROM parish_youth_data
+            WHERE is_complete = 1 AND (is_deleted != 0 or is_deleted !='0')
+            LIMIT ? OFFSET ?
+        `;
+
+        const [rows] = await conn.query(query, [
+            parseInt(limit),
+            parseInt(offset),
+        ]);
+
+        // Query to get total number of records
+        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')`;
+        const [countResult] = await conn.query(countQuery);
+
+        // Release the connection
+        conn.release();
+
+        // Calculate the total number of pages
+        const totalRecords = countResult[0].total;
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        const formattedData = rows?.map((row) => ({
+            id: row.id,
+            prefixedId: "YTH_" + row.id,
+            formNumber: row.form_number,
+            fullName: row.full_name,
+            dateOfBirth: row.date_of_birth,
+            age: row.age,
+            gender: row.gender,
+            permanentAddress: row.permanent_address,
+            currentAddress: row.current_address,
+            mobileNumber: row.mobile_number,
+            whatsappNumber: row.whatsapp_number,
+            email: row.email,
+            educationalQualification: row.educational_qualification,
+            currentOccupation: row.current_occupation,
+            professionalDetails: row.professional_details,
+            currentCourse: row.current_course,
+            sacraments: {
+                baptism: row.baptism,
+                confirmation: row.confirmation,
+                holyCommunion: row.holy_communion,
+            },
+            pendingSacraments: row.pending_sacraments,
+            hasOrganisationGroup: row.has_organisation_group,
+            organisationGroup: row.organisation_group,
+            hasParishActivity: row.has_parish_activity,
+            parishActivity: row.parish_activity,
+            isOutsideParish: row.is_outside_parish,
+            isStudent: row.is_student,
+            countryCity: row.country_city,
+            parishContact: row.parish_contact,
+            residentialAddress: row.residential_address,
+            isAttendingSundayMass: row.is_attending_sunday_mass,
+            sundayMassLocation: row.sunday_mass_location,
+            houseName: row.house_name,
+            parentsName: row.parents_name,
+            parentsNumber: row.parents_number,
+            unit: row.unit,
+            specials: row.specials,
+            healthIssues: row.health_issues,
+        }));
+
+        // Return paginated data along with total pages and current page info
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            responseData: formattedData,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: totalPages,
+                totalRecords: totalRecords,
+                limit: parseInt(limit),
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
+router.post("/permanentDelete", async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        const conn = await db.connection();
+        const query = `DELETE FROM parish_youth_data WHERE id = ?`;
+        const result = await conn.query(query, [id]);
+
+        conn.release();
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                isError: true,
+                message: "Parish registration not found",
+            });
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            message: "Parish registration deleted successfully",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
+router.post("/restoreYouth", async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        const conn = await db.connection();
+        const query = `UPDATE parish_youth_data SET is_deleted = 0 WHERE id = ?`;
+        const result = await conn.query(query, [id]);
+
+        conn.release();
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                isError: true,
+                message: "Parish registration not found",
+            });
+        }
+
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            message: "Parish registration deleted successfully",
         });
     } catch (error) {
         console.error(error);
