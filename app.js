@@ -35,6 +35,7 @@ app.use((req, res, next) => {
 app.use("/api/auth/", require("./routes/auth"));
 app.use("/api/youth/", require("./routes/youth"));
 app.use("/api/dashboard/", require("./routes/admin"));
+app.use("/api/global/", require("./routes/global"));
 
 app.use((req, res, next) => {
     const error = new Error("Not found");

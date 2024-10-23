@@ -774,7 +774,7 @@ router.get("/deletedYouth", async (req, res) => {
         ]);
 
         // Query to get total number of records
-        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')`;
+        const countQuery = `SELECT COUNT(*) AS total FROM parish_youth_data WHERE is_complete = 1 AND (is_deleted != 0 or is_deleted !='0')`;
         const [countResult] = await conn.query(countQuery);
 
         // Release the connection
