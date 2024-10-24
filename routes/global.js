@@ -229,7 +229,6 @@ router.post("/add", authenticateToken, async (req, res) => {
         !houseName ||
         !age ||
         !contactNumber ||
-        !additionalInfo ||
         !whatsAppNumber ||
         !email ||
         !country ||
@@ -367,7 +366,6 @@ router.post("/update", authenticateToken, async (req, res) => {
         !dateOfBirth ||
         !age ||
         !contactNumber ||
-        !additionalInfo ||
         !whatsAppNumber ||
         !email ||
         !country ||
