@@ -15,8 +15,20 @@ router.get("/", async (req, res) => {
         WHERE is_complete=1 AND (is_deleted = 0 or is_deleted ='0')
         `;
 
+        const queryGlobal = `
+        SELECT COUNT(*) AS globalCount FROM parish_global_data
+        WHERE is_complete=1 AND (is_deleted = 0 or is_deleted ='0')
+        `;
+
+        const queryParish = `
+        SELECT COUNT(*) AS parishCount FROM parish_data
+        WHERE is_complete=1 AND (is_deleted = 0 or is_deleted ='0')
+        `;
+
         // Execute the query
+        const [resultGlobal] = await conn.query(queryGlobal);
         const [result] = await conn.query(query);
+        const [resultParish] = await conn.query(queryParish);
 
         // Release the connection
         conn.release();
@@ -25,7 +37,11 @@ router.get("/", async (req, res) => {
         res.status(200).json({
             statusCode: 200,
             isError: false,
-            responseData: { youthCount: result[0].youthCount },
+            responseData: {
+                youthCount: result[0].youthCount,
+                globalMembers: resultGlobal[0].globalCount,
+                parishMembers: resultParish[0].parishCount,
+            },
         });
     } catch (error) {
         console.error(error);

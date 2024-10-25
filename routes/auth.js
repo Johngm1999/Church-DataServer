@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const JWT_KEY = "secret";
 const REFRESH_JWT_KEY = "refreshsecret";
-const refreshTokens = [];
+let refreshTokens = [];
 const { validationResult } = require("express-validator");
 const validator = require("./validations/validation");
 
@@ -57,6 +57,7 @@ router.post("/login", validator.logincheck, async (req, res, next) => {
                     refreshTokens.push(refreshToken);
                     await conn.commit();
                     await conn.release();
+
                     res.status(201)
                         .json({
                             statusCode: 201,
@@ -166,13 +167,25 @@ router.post("/token", (req, res) => {
 
 router.post("/logout", (req, res) => {
     const { refreshToken } = req.body;
-    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+    try {
+        refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
 
-    res.status(200).json({
-        statusCode: 200,
-        isError: false,
-        statusText: "Logout successful",
-    });
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            statusText: "Logout successful",
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500)
+            .json({
+                statusCode: 500,
+                isError: true,
+                responseData: null,
+                statusText: "Server Error,Try Again",
+            })
+            .end();
+    }
 });
 
 module.exports = router;
