@@ -311,4 +311,77 @@ router.post("/changeUserPassword", checkAuth, async (req, res) => {
     }
 });
 
+router.post("/generatePdf", async (req, res) => {
+    const { id, type } = req.body; //id is prefixedId
+
+    try {
+        const conn = await db.connection();
+        const today = new Date();
+
+        // Update certificate history if exists
+        const updateQuery = `UPDATE certificate_history SET certificate_created_date = ? WHERE user_id = ?`;
+        const updateResult = await conn.query(updateQuery, [today, id]);
+        // Check if update was successful; if not, insert new record
+        if (updateResult[0].affectedRows == 0) {
+            const insertQuery = `INSERT INTO certificate_history (user_id, certificate_created_date) VALUES (?, ?)`;
+            await conn.query(insertQuery, [id, today]);
+            conn.release();
+
+            return res.status(201).json({
+                statusCode: 201,
+                isError: false,
+                message: "Certificate created successfully.",
+            });
+        }
+
+        conn.release();
+
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            message: "Certificat updated successfully.",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
+router.get("/history", async (req, res) => {
+    try {
+        // Connect to the database
+        const { id } = req.query;
+        const conn = await db.connection();
+
+        // Query to count incomplete records
+        const query = `
+        SELECT * FROM certificate_history
+        WHERE user_id = ?`;
+        const [result] = await conn.query(query, [id]);
+
+        // Release the connection
+        conn.release();
+
+        // Return the count of incomplete records
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            responseData: result,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
 module.exports = router;
