@@ -82,6 +82,12 @@ router.get("/", async (req, res) => {
             generalObservations: row.general_observations,
             additionalInfo: row.additional_info,
             unit: row.unit,
+            headMobile: row.head_mobile,
+            member1Mobile: row.member1_mobile,
+            member2Mobile: row.member2_mobile,
+            member3Mobile: row.member3_mobile,
+            member4Mobile: row.member4_mobile,
+            member5Mobile: row.member5_mobile,
         }));
 
         // Return paginated data along with total pages and current page info
@@ -186,6 +192,12 @@ router.get("/inomplete", async (req, res) => {
             generalObservations: row.general_observations,
             additionalInfo: row.additional_info,
             unit: row.unit,
+            headMobile: row.head_mobile,
+            member1Mobile: row.member1_mobile,
+            member2Mobile: row.member2_mobile,
+            member3Mobile: row.member3_mobile,
+            member4Mobile: row.member4_mobile,
+            member5Mobile: row.member5_mobile,
         }));
 
         // Return paginated data along with total pages and current page info
@@ -254,6 +266,12 @@ router.post("/add", authenticateToken, async (req, res) => {
         generalObservations,
         additionalInfo,
         unit,
+        headMobile,
+        member1Mobile,
+        member2Mobile,
+        member3Mobile,
+        member4Mobile,
+        member5Mobile,
     } = req.body;
     let isComplete = 1;
     try {
@@ -266,8 +284,8 @@ router.post("/add", authenticateToken, async (req, res) => {
         child2_name, child2_age, child2_occupation, child3_name, child3_age, child3_occupation, child4_name, child4_age, child4_occupation,
         health_concerns, financial_situation, educational_needs, special_concerns, attending_church, 
         need_sacraments, prayer_requests, is_parish_whatsapp_group, suggested_mobile, general_observations, 
-        additional_info,data_added_by,is_complete,unit) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`;
+        additional_info,data_added_by,is_complete,unit,head_mobile,member1_Mobile,member2_mobile,member3_mobile,member4_mobile,member5_mobile) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?, ?,?, ?, ?, ?, ?, ?, ?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)`;
 
         if (
             !formNumber ||
@@ -277,7 +295,8 @@ router.post("/add", authenticateToken, async (req, res) => {
             // !email ||
             !headName ||
             !headAge ||
-            !headOccupation
+            !headOccupation ||
+            !headMobile
             // !member1Name ||
             // !member1Age ||
             // !member1Occupation ||
@@ -354,6 +373,12 @@ router.post("/add", authenticateToken, async (req, res) => {
             req.user.user_role,
             isComplete,
             unit,
+            headMobile,
+            member1Mobile,
+            member2Mobile,
+            member3Mobile,
+            member4Mobile,
+            member5Mobile,
         ];
 
         const result = await conn.query(query, values);
@@ -427,6 +452,12 @@ router.post("/update", authenticateToken, async (req, res) => {
         generalObservations,
         additionalInfo,
         unit,
+        headMobile,
+        member1Mobile,
+        member2Mobile,
+        member3Mobile,
+        member4Mobile,
+        member5Mobile,
     } = req.body;
 
     let isComplete = 1; // Default to complete
@@ -439,7 +470,8 @@ router.post("/update", authenticateToken, async (req, res) => {
         !contactNumber ||
         !headName ||
         !headAge ||
-        !headOccupation
+        !headOccupation ||
+        !headMobile
     ) {
         isComplete = 0; // Mark as incomplete if required fields are missing
     }
@@ -489,7 +521,13 @@ router.post("/update", authenticateToken, async (req, res) => {
             additional_info = ?, 
             data_added_by = ?, 
             is_complete = ? ,
-            unit = ?
+            unit = ?,
+            head_mobile=?,
+            member1_mobile=?,
+            member2_mobile=?,
+            member3_mobile=?,
+            member4_mobile=?,
+            member5_mobile=?
         WHERE id = ?`; // Include is_complete in the update
 
         const values = [
@@ -536,6 +574,12 @@ router.post("/update", authenticateToken, async (req, res) => {
             req.user.user_role, // Assume the user role is to be updated as well
             isComplete, // Include isComplete in the values
             unit,
+            headMobile,
+            member1Mobile,
+            member2Mobile,
+            member3Mobile,
+            member4Mobile,
+            member5Mobile,
             id, // The id is used for the WHERE clause
         ];
 
@@ -871,6 +915,12 @@ router.get("/deletedParish", async (req, res) => {
             generalObservations: row.general_observations,
             additionalInfo: row.additional_info,
             unit: row.unit,
+            headMobile: row.head_mobile,
+            member1Mobile: row.member1_mobile,
+            member2Mobile: row.member2_mobile,
+            member3Mobile: row.member3_mobile,
+            member4Mobile: row.member4_mobile,
+            member5Mobile: row.member5_mobile,
         }));
 
         // Return paginated data along with total pages and current page info
