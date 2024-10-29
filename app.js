@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 // use morgan logger
 app.use(
@@ -13,7 +14,7 @@ app.use(
 // set bodyParser
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+app.use(cors());
 // setup cors
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
