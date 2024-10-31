@@ -7,7 +7,7 @@ exports.logincheck = [
         .isLength({
             min: 6,
         })
-        .withMessage("Please check your password"),
+        .withMessage("Please check your credentials"),
 ];
 
 exports.paginator = [

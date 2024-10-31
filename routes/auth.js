@@ -28,11 +28,13 @@ router.post("/login", validator.logincheck, async (req, res, next) => {
     let USER;
 
     if (!errors.isEmpty()) {
+        console.log(errors.errors);
+
         return res.status(400).json({
             statusCode: 400,
             isError: true,
             responseData: errors.array(),
-            statusText: "Validaton Error",
+            statusText: errors.errors[0].msg || "please check your credentials",
         });
     } else {
         // login

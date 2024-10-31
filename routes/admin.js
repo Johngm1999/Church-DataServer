@@ -311,7 +311,7 @@ router.post("/changeUserPassword", checkAuth, async (req, res) => {
     }
 });
 
-router.post("/generatePdf", async (req, res) => {
+router.post("/generatePdf", checkAuth, async (req, res) => {
     const { id, type } = req.body; //id is prefixedId
 
     try {
@@ -352,7 +352,7 @@ router.post("/generatePdf", async (req, res) => {
     }
 });
 
-router.get("/history", async (req, res) => {
+router.get("/history", checkAuth, async (req, res) => {
     try {
         // Connect to the database
         const { id } = req.query;

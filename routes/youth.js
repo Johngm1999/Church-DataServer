@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../config/db");
 const authenticateToken = require("../middlewares/checkAuth");
 
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
     try {
         // Extract query parameters for pagination
         const { page = 1, limit = 10 } = req.query;
@@ -261,7 +261,7 @@ router.post("/add", authenticateToken, async (req, res) => {
     }
 });
 
-router.post("/update", async (req, res) => {
+router.post("/update", authenticateToken, async (req, res) => {
     const {
         id,
         formNumber,
@@ -424,7 +424,7 @@ router.post("/update", async (req, res) => {
     }
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", authenticateToken, async (req, res) => {
     const { id } = req.body;
 
     try {
@@ -457,7 +457,7 @@ router.post("/delete", async (req, res) => {
     }
 });
 
-router.get("/inomplete", async (req, res) => {
+router.get("/inomplete", authenticateToken, async (req, res) => {
     try {
         // Extract query parameters for pagination
         const { page = 1, limit = 10 } = req.query;
@@ -556,7 +556,7 @@ router.get("/inomplete", async (req, res) => {
     }
 });
 
-router.get("/incomplete-count", async (req, res) => {
+router.get("/incomplete-count", authenticateToken, async (req, res) => {
     try {
         // Connect to the database
         const conn = await db.connection();
@@ -590,7 +590,7 @@ router.get("/incomplete-count", async (req, res) => {
     }
 });
 
-router.get("/search", async (req, res) => {
+router.get("/search", authenticateToken, async (req, res) => {
     try {
         // Extract query parameters for pagination and search criteria
         const {
@@ -750,7 +750,7 @@ router.get("/search", async (req, res) => {
     }
 });
 
-router.get("/deletedYouth", async (req, res) => {
+router.get("/deletedYouth", authenticateToken, async (req, res) => {
     try {
         // Extract query parameters for pagination
         const { page = 1, limit = 10 } = req.query;
@@ -849,7 +849,7 @@ router.get("/deletedYouth", async (req, res) => {
     }
 });
 
-router.post("/permanentDelete", async (req, res) => {
+router.post("/permanentDelete", authenticateToken, async (req, res) => {
     const { id } = req.body;
 
     try {
@@ -882,7 +882,7 @@ router.post("/permanentDelete", async (req, res) => {
     }
 });
 
-router.post("/restoreYouth", async (req, res) => {
+router.post("/restoreYouth", authenticateToken, async (req, res) => {
     const { id } = req.body;
 
     try {
