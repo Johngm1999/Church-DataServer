@@ -621,7 +621,7 @@ router.get("/search", authenticateToken, async (req, res) => {
         // Extract query parameters for pagination and search criteria
         const {
             page = 1,
-            limit = 10,
+            limit,
             name,
             mobileNumber,
             unit,
@@ -629,7 +629,7 @@ router.get("/search", authenticateToken, async (req, res) => {
         } = req.query;
 
         // Calculate the offset
-        const offset = (page - 1) * limit;
+        const offset = limit ? (page - 1) * limit : 0;
 
         // Connect to the database
         const conn = await db.connection();
@@ -652,7 +652,11 @@ router.get("/search", authenticateToken, async (req, res) => {
         }
 
         // Append pagination to the query
-        query += ` AND is_complete = 1 AND (is_deleted = 0 OR is_deleted = '0') LIMIT ? OFFSET ?`;
+        if (limit) {
+            query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted = '0') LIMIT ? OFFSET ?`;
+        } else {
+            query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted = '0')`;
+        }
 
         // Prepare parameters for the query
         const params = [];
@@ -660,7 +664,9 @@ router.get("/search", authenticateToken, async (req, res) => {
         if (mobileNumber) params.push(`%${mobileNumber}%`);
         if (unit) params.push(`%${unit}%`);
         if (familyName) params.push(`%${familyName}%`);
-        params.push(parseInt(limit), parseInt(offset));
+        if (limit) {
+            params.push(parseInt(limit), parseInt(offset));
+        }
 
         // Execute the query for paginated results
         const [rows] = await conn.query(query, params);
@@ -1012,4 +1018,93 @@ router.post("/restoreParish", authenticateToken, async (req, res) => {
     }
 });
 
+router.get("/getDataForExcel", authenticateToken, async (req, res) => {
+    try {
+        // Connect to the database
+        const conn = await db.connection();
+
+        // Query to get paginated data from family_information table
+        const query = `
+            SELECT * FROM parish_data
+             WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')
+            ORDER BY created_at DESC
+        `;
+        const [rows] = await conn.query(query);
+        conn.release();
+
+        // Format the data to match the input structure
+        const formattedData = rows?.map((row) => ({
+            id: row.id,
+            prefixedId: "PAR_" + row.id,
+            formNumber: row.form_number,
+            familyName: row.family_name,
+            address: row.address,
+            contactNumber: row.contact_number,
+            email: row.email,
+            headName: row.head_name,
+            headAge: row.head_age,
+            headOccupation: row.head_occupation,
+            member1Name: row.member1_name,
+            member1Age: row.member1_age,
+            member1Occupation: row.member1_occupation,
+            member2Name: row.member2_name,
+            member2Age: row.member2_age,
+            member2Occupation: row.member2_occupation,
+            member3Name: row.member3_name,
+            member3Age: row.member3_age,
+            member3Occupation: row.member3_occupation,
+            child1Name: row.child1_name,
+            child1Age: row.child1_age,
+            child1Occupation: row.child1_occupation,
+            child2Name: row.child2_name,
+            child2Age: row.child2_age,
+            child2Occupation: row.child2_occupation,
+            child3Name: row.child3_name,
+            child3Age: row.child3_age,
+            child3Occupation: row.child3_occupation,
+            child4Name: row.child3_name,
+            child4Age: row.child3_age,
+            child4Occupation: row.child3_occupation,
+            healthConcerns: row.health_concerns,
+            financialSituation: row.financial_situation,
+            educationalNeeds: row.educational_needs,
+            specialConcerns: row.special_concerns,
+            attendingChurch: row.attending_church,
+            needSacraments: row.need_sacraments,
+            prayerRequests: row.prayer_requests,
+            isParishWhatsappGroup: row.is_parish_whatsapp_group,
+            suggestedMobile: row.suggested_mobile,
+            generalObservations: row.general_observations,
+            additionalInfo: row.additional_info,
+            unit: row.unit,
+            headMobile: row.head_mobile,
+            member1Mobile: row.member1_mobile,
+            member2Mobile: row.member2_mobile,
+            member3Mobile: row.member3_mobile,
+            member4Mobile: row.member4_mobile,
+            member5Mobile: row.member5_mobile,
+        }));
+
+        // Return paginated data along with total pages and current page info
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            responseData: formattedData,
+            pagination: {
+                currentPage: 0,
+                totalPages: 0,
+                totalRecords: 0,
+                limit: 0,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
 module.exports = router;

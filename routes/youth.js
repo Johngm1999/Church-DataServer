@@ -605,7 +605,7 @@ router.get("/search", authenticateToken, async (req, res) => {
         } = req.query;
 
         // Calculate the offset
-        const offset = (page - 1) * limit;
+        const offset = limit ? (page - 1) * limit : 0;
 
         // Connect to the database
         const conn = await db.connection();
@@ -631,7 +631,11 @@ router.get("/search", authenticateToken, async (req, res) => {
         }
 
         // Append pagination to the query
-        query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted ='0') LIMIT ? OFFSET ?`;
+        if (limit) {
+            query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted = '0') LIMIT ? OFFSET ?`;
+        } else {
+            query += ` AND is_complete = 1 AND (is_deleted = 0 or is_deleted = '0')`;
+        }
 
         // Prepare parameters for the query
         const params = [];
@@ -640,7 +644,9 @@ router.get("/search", authenticateToken, async (req, res) => {
         if (mobileNumber) params.push(mobileNumber);
         if (unit) params.push(unit);
         if (education) params.push(education);
-        params.push(parseInt(limit), parseInt(offset));
+        if (limit) {
+            params.push(parseInt(limit), parseInt(offset));
+        }
 
         // Execute the query for paginated results
         const [rows] = await conn.query(query, params);
@@ -903,6 +909,94 @@ router.post("/restoreYouth", authenticateToken, async (req, res) => {
             statusCode: 200,
             isError: false,
             message: "Parish registration deleted successfully",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            statusCode: 500,
+            isError: true,
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+});
+
+router.get("/getDataForExcel", authenticateToken, async (req, res) => {
+    try {
+        // Connect to the database
+        const conn = await db.connection();
+
+        // Query to get paginated data
+        const query = `
+            SELECT * FROM parish_youth_data
+            WHERE is_complete = 1 AND (is_deleted = 0 or is_deleted ='0')
+            ORDER BY created_at DESC
+        `;
+
+        const [rows] = await conn.query(query);
+
+        // Query to get total number of records
+
+        conn.release();
+
+        // Calculate the total number of pages
+        const totalRecords = 0;
+        const totalPages = 0;
+
+        const formattedData = rows?.map((row) => ({
+            id: row.id,
+            prefixedId: "YTH_" + row.id,
+            formNumber: row.form_number,
+            fullName: row.full_name,
+            dateOfBirth: row.date_of_birth,
+            age: row.age,
+            gender: row.gender,
+            permanentAddress: row.permanent_address,
+            currentAddress: row.current_address,
+            mobileNumber: row.mobile_number,
+            whatsappNumber: row.whatsapp_number,
+            email: row.email,
+            educationalQualification: row.educational_qualification,
+            currentOccupation: row.current_occupation,
+            professionalDetails: row.professional_details,
+            currentCourse: row.current_course,
+
+            baptism: row.baptism ? "Yes" : "No",
+            confirmation: row.confirmation ? "Yes" : "No",
+            holyCommunion: row.holy_communion ? "Yes" : "No",
+
+            pendingSacraments: row.pending_sacraments,
+            hasOrganisationGroup: row.has_organisation_group,
+            organisationGroup: row.organisation_group,
+            hasParishActivity: row.has_parish_activity,
+            parishActivity: row.parish_activity,
+            isOutsideParish: row.is_outside_parish,
+            isStudent: row.is_student,
+            countryCity: row.country_city,
+            parishContact: row.parish_contact,
+            residentialAddress: row.residential_address,
+            isAttendingSundayMass: row.is_attending_sunday_mass,
+            sundayMassLocation: row.sunday_mass_location,
+            houseName: row.house_name,
+            parentsName: row.parents_name,
+            parentsNumber: row.parents_number,
+            unit: row.unit,
+            specials: row.specials,
+            healthIssues: row.health_issues,
+            additionalInfo: row.additional_info,
+        }));
+
+        // Return paginated data along with total pages and current page info
+        res.status(200).json({
+            statusCode: 200,
+            isError: false,
+            responseData: formattedData,
+            pagination: {
+                currentPage: 0,
+                totalPages: totalPages,
+                totalRecords: totalRecords,
+                limit: 0,
+            },
         });
     } catch (error) {
         console.error(error);
