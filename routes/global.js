@@ -337,6 +337,7 @@ router.post("/update", authenticateToken, async (req, res) => {
         email,
         country,
         city,
+        streetAddress,
         postalCode,
         contactNumberAbroad,
         whatsAppNumberAbroad,
@@ -350,6 +351,8 @@ router.post("/update", authenticateToken, async (req, res) => {
         contactInfoParishPriest,
         unit,
         maritialStatus,
+        emailAbroad,
+        currentEmployerOrInstitution,
     } = req.body;
 
     let isComplete = 1; // Default to complete
@@ -367,13 +370,10 @@ router.post("/update", authenticateToken, async (req, res) => {
         !email ||
         !country ||
         !city ||
-        !streetAddress ||
         !postalCode ||
         !contactNumberAbroad ||
         !whatsAppNumberAbroad ||
-        !emailAbroad ||
         !ocupationOrField ||
-        !currentEmployerOrInstitution ||
         !hasAffiliatedWithAnyChurch ||
         (hasAffiliatedWithAnyChurch == "yes" && !nameOfChurchAffiliated) ||
         !hasChanceForSundayMass ||
