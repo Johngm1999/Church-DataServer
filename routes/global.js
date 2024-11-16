@@ -233,16 +233,16 @@ router.post("/add", authenticateToken, async (req, res) => {
         !email ||
         !country ||
         !city ||
-        !streetAddress ||
+        // !streetAddress ||
         !postalCode ||
         !contactNumberAbroad ||
         !whatsAppNumberAbroad ||
-        !emailAbroad ||
+        // !emailAbroad ||
         // spouseName||
         // childrenNames||
         // !contacsOfFamily||
         !ocupationOrField ||
-        !currentEmployerOrInstitution ||
+        // !currentEmployerOrInstitution ||
         !hasAffiliatedWithAnyChurch ||
         (hasAffiliatedWithAnyChurch == "yes" && !nameOfChurchAffiliated) ||
         !hasChanceForSundayMass ||
@@ -337,16 +337,13 @@ router.post("/update", authenticateToken, async (req, res) => {
         email,
         country,
         city,
-        streetAddress,
         postalCode,
         contactNumberAbroad,
         whatsAppNumberAbroad,
-        emailAbroad,
         spouseName,
         childrenNames,
         contacsOfFamily,
         ocupationOrField,
-        currentEmployerOrInstitution,
         hasAffiliatedWithAnyChurch,
         nameOfChurchAffiliated,
         hasChanceForSundayMass,

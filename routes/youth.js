@@ -162,8 +162,8 @@ router.post("/add", authenticateToken, async (req, res) => {
         whatsappNumber === "" ||
         // email === "" ||
         educationalQualification === "" ||
-        currentOccupation === "" ||
-        professionalDetails === "" ||
+        // currentOccupation === "" ||
+        // professionalDetails === "" ||
         // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
@@ -172,8 +172,8 @@ router.post("/add", authenticateToken, async (req, res) => {
         // residentialAddress === "" ||
         // (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
         houseName === "" ||
-        parentsName === "" ||
-        parentsNumber === "" ||
+        // parentsName === "" ||
+        // parentsNumber === "" ||
         unit === "" ||
         (!baptism && !confirmation && !holyCommunion)
         // specials === "" ||
@@ -314,27 +314,14 @@ router.post("/update", authenticateToken, async (req, res) => {
         gender === null ||
         gender === "" ||
         permanentAddress === "" ||
-        // currentAddress === "" ||
         mobileNumber === "" ||
         whatsappNumber === "" ||
-        // email === "" ||
         educationalQualification === "" ||
-        currentOccupation === "" ||
-        professionalDetails === "" ||
-        // currentCourse === "" ||
         (hasOrganisationGroup === "yes" && organisationGroup === "") ||
         (hasParishActivity === "yes" && parishActivity === "") ||
-        // countryCity === "" ||
-        // parishContact === "" ||
-        // residentialAddress === "" ||
-        // (isAttendingSundayMass === "yes" && sundayMassLocation === "") ||
         houseName === "" ||
-        parentsName === "" ||
-        parentsNumber === "" ||
         unit === "" ||
         (!baptism && !confirmation && !holyCommunion)
-        // specials === "" ||
-        // healthIssues === ""
     ) {
         isComplete = 0; // Set to incomplete if any condition is met
     }

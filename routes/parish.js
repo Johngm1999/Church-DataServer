@@ -295,7 +295,7 @@ router.post("/add", authenticateToken, async (req, res) => {
             // !email ||
             !headName ||
             !headAge ||
-            !headOccupation ||
+            // !headOccupation ||
             !headMobile
             // !member1Name ||
             // !member1Age ||
@@ -470,7 +470,6 @@ router.post("/update", authenticateToken, async (req, res) => {
         !contactNumber ||
         !headName ||
         !headAge ||
-        !headOccupation ||
         !headMobile
     ) {
         isComplete = 0; // Mark as incomplete if required fields are missing
